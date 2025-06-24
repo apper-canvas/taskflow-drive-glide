@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "title": "Review Q4 marketing campaign proposals",
+    "categoryId": 1,
+    "priority": "high",
+    "dueDate": "2024-01-15",
+    "completed": false,
+    "createdAt": "1/10/2024 9:00:00 AMZ",
+    "archived": false
+  },
+  {
+    "Id": 2,
+    "title": "Update project documentation",
+    "categoryId": 1,
+    "priority": "medium",
+    "dueDate": "2024-01-18",
+    "completed": false,
+    "createdAt": "2024-01-10T10:30:00Z",
+    "archived": false
+  },
+  {
+    "Id": 3,
+    "title": "Schedule team building event",
+    "categoryId": 2,
+    "priority": "low",
+    "dueDate": "2024-01-20",
+    "completed": true,
+    "createdAt": "2024-01-08T14:15:00Z",
+    "archived": false
+  },
+  {
+    "Id": 4,
+    "title": "Prepare presentation for client meeting",
+    "categoryId": 1,
+    "priority": "high",
+    "dueDate": "2024-01-14",
+    "completed": false,
+    "createdAt": "2024-01-09T16:45:00Z",
+    "archived": false
+  },
+  {
+    "Id": 5,
+    "title": "Buy groceries for the week",
+    "categoryId": 2,
+    "priority": "medium",
+    "dueDate": "2024-01-13",
+    "completed": false,
+    "createdAt": "2024-01-11T08:20:00Z",
+    "archived": false
+  },
+  {
+    "Id": 6,
+    "title": "Complete annual performance review",
+    "categoryId": 1,
+    "priority": "high",
+    "dueDate": "2024-01-12",
+    "completed": true,
+    "createdAt": "2024-01-07T11:00:00Z",
+    "archived": true
+  }
+]
