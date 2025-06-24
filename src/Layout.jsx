@@ -1,15 +1,18 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import ApperIcon from "@/components/ApperIcon";
-import { routeArray } from "@/config/routes";
+import "@/index.css";
 import { categoryService } from "@/services/api/categoryService";
-
+import { taskService } from "@/services/api/taskService";
+import { routeArray } from "@/config/routes";
+import ApperIcon from "@/components/ApperIcon";
+import Tasks from "@/components/pages/Tasks";
 const Layout = () => {
   const location = useLocation()
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
+  const [recurringTasks, setRecurringTasks] = useState([])
+  const [showRecurringPanel, setShowRecurringPanel] = useState(false)
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -17,11 +20,21 @@ const Layout = () => {
         setCategories(data)
       } catch (error) {
         console.error('Failed to load categories:', error)
-      }
+}
     }
     loadCategories()
+    loadRecurringTasks()
   }, [])
 
+  const loadRecurringTasks = async () => {
+    try {
+      const { taskService } = await import('@/services/api/taskService')
+      const data = await taskService.getRecurringTasks()
+      setRecurringTasks(data.filter(task => !task.paused))
+    } catch (error) {
+      console.error('Failed to load recurring tasks:', error)
+    }
+  }
 const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId)
     setMobileMenuOpen(false)
@@ -137,8 +150,69 @@ const handleCategorySelect = (categoryId) => {
                     ></div>
                     <span className="font-medium">{category.name}</span>
                   </button>
-                ))}
+))}
               </div>
+            </div>
+
+            {/* Recurring Tasks Configuration */}
+            <div className="px-4 py-2 border-t border-surface-200 mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-surface-500 uppercase tracking-wide">
+                  Recurring Tasks
+                </h3>
+                <button
+                  onClick={() => setShowRecurringPanel(!showRecurringPanel)}
+                  className="p-1 rounded hover:bg-surface-100 transition-colors"
+                >
+                  <ApperIcon 
+                    name={showRecurringPanel ? "ChevronUp" : "ChevronDown"} 
+                    size={14} 
+                    className="text-surface-500"
+                  />
+                </button>
+              </div>
+              
+              {showRecurringPanel && (
+                <div className="space-y-2">
+                  {recurringTasks.length === 0 ? (
+                    <p className="text-xs text-surface-500 px-3 py-2">
+                      No recurring tasks configured
+                    </p>
+                  ) : (
+                    recurringTasks.map(task => (
+                      <div
+                        key={task.Id}
+                        className="flex items-center justify-between px-3 py-2 rounded-lg bg-surface-100 text-sm"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <ApperIcon name="Repeat" size={12} className="text-primary flex-shrink-0" />
+                          <span className="truncate text-surface-700">{task.title}</span>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className="text-xs text-surface-500 capitalize">
+                            {task.recurringType}
+                          </span>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const { taskService } = await import('@/services/api/taskService')
+                                await taskService.updateRecurringTask(task.Id, { paused: true })
+                                loadRecurringTasks()
+                              } catch (error) {
+                                console.error('Failed to pause recurring task:', error)
+                              }
+                            }}
+                            className="p-1 rounded hover:bg-surface-200 transition-colors"
+                            title="Pause recurring task"
+                          >
+                            <ApperIcon name="Pause" size={10} className="text-surface-500" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </aside>

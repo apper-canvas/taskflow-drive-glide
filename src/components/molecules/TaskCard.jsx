@@ -1,20 +1,19 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { format, isPast, isToday } from 'date-fns'
-import { toast } from 'react-toastify'
-import Checkbox from '@/components/atoms/Checkbox'
-import Badge from '@/components/atoms/Badge'
-import Button from '@/components/atoms/Button'
-import ApperIcon from '@/components/ApperIcon'
-import { taskService } from '@/services/api/taskService'
-import { categoryService } from '@/services/api/categoryService'
-import { useEffect } from 'react'
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { format, isPast, isToday } from "date-fns";
+import { toast } from "react-toastify";
+import { categoryService } from "@/services/api/categoryService";
+import { taskService } from "@/services/api/taskService";
+import ApperIcon from "@/components/ApperIcon";
+import Checkbox from "@/components/atoms/Checkbox";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 
 const TaskCard = ({ task, onUpdate, onDelete, onEdit }) => {
   const [isCompleting, setIsCompleting] = useState(false)
   const [category, setCategory] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
-
+  const [isRecurringTask, setIsRecurringTask] = useState(false)
   useEffect(() => {
     const loadCategory = async () => {
       try {
@@ -24,11 +23,13 @@ const TaskCard = ({ task, onUpdate, onDelete, onEdit }) => {
         console.error('Failed to load category:', error)
       }
     }
-    if (task.categoryId) {
+if (task.categoryId) {
       loadCategory()
     }
-  }, [task.categoryId])
-
+    
+    // Check if this is a recurring task instance
+    setIsRecurringTask(!!task.recurringTaskId)
+  }, [task.categoryId, task.recurringTaskId])
   const handleToggleComplete = async () => {
     if (isCompleting) return
     
@@ -111,29 +112,39 @@ const TaskCard = ({ task, onUpdate, onDelete, onEdit }) => {
           />
         </div>
 
-        {/* Task Content */}
+{/* Task Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2">
             <h3 className={`
-              font-medium text-surface-900 break-words
+              font-medium text-surface-900 break-words flex-1
               ${task.completed ? 'line-through text-surface-500' : ''}
             `}>
               {task.title}
             </h3>
-            
-            {/* Priority Badge */}
-            {task.priority && (
+            {isRecurringTask && (
               <div className="flex-shrink-0">
-                <Badge 
-                  variant={task.priority} 
-                  size="xs"
-                  className={dueDateStatus === 'overdue' ? 'animate-pulse-slow' : ''}
-                >
-                  {task.priority}
-                </Badge>
+                <ApperIcon 
+                  name="Repeat" 
+                  size={14} 
+                  className="text-primary"
+                  title="Recurring task"
+                />
               </div>
             )}
           </div>
+          
+          {/* Priority Badge */}
+          {task.priority && (
+            <div className="flex-shrink-0 mt-1">
+              <Badge 
+                variant={task.priority} 
+                size="xs"
+                className={dueDateStatus === 'overdue' ? 'animate-pulse-slow' : ''}
+              >
+                {task.priority}
+              </Badge>
+            </div>
+          )}
 
           {/* Category and Due Date */}
           <div className="flex items-center gap-3 mt-2">
